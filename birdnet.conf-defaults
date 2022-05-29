@@ -75,7 +75,7 @@ FLICKR_API_KEY=
 ## it needs to analyze. Be sure this directory is readable and writable for
 ## the BIRDNET_USER. 
 
-RECS_DIR=$HOME/BirdSongs
+RECS_DIR=/dev/shm/BirdSongs
 
 ## REC_CARD is the sound card you would want the birdnet_recording.service to 
 ## use. Leave this as "default" to use PulseAudio (recommended), or use

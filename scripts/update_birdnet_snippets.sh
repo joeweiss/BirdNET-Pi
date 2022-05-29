@@ -80,5 +80,9 @@ if [ ! -f $HOME/BirdNET-Pi/model/labels.txt ];then
   && logger "[$0] Installed new language label file for '$DATABASE_LANG'";
 fi
 
+if ! grep STORAGE_LIMIT /etc/birdnet/birdnet.conf &>/dev/null;then
+  sudo -u$USER echo "STORAGE_LIMIT=50M" >> /etc/birdnet/birdnet.conf
+fi
+
 sudo systemctl daemon-reload
 restart_services.sh

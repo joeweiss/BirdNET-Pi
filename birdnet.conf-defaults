@@ -119,6 +119,13 @@ CHANNELS=2
 
 FULL_DISK=purge
 
+## STORAGE_LIMIT is the amount of raw data that should be kept.
+## Unit options: B(bytes) M(megabytes) G(gigabytes)
+## Minimum value: 40B
+## Example: STORAGE_LIMIT = 1G
+
+STORAGE_LIMIT = 50M
+
 ## PRIVACY_THRESHOLD can be set to enable sensitivity to Human sounds. This
 ## setting is an effort to introduce privacy into the data collection.
 ## The PRIVACY_THRESHOLD value represents a percentage of the entire species 

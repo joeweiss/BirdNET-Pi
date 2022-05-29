@@ -88,7 +88,7 @@ FLICKR_API_KEY=
 ## it needs to analyze. Be sure this directory is readable and writable for
 ## the BIRDNET_USER.
 
-RECS_DIR=$HOME/BirdSongs
+RECS_DIR=/dev/shm/BirdSongs
 
 ## REC_CARD is the sound card you would want the birdnet_recording.service to
 ## use. Leave this as "default" to use PulseAudio (recommended), or use
@@ -100,7 +100,7 @@ REC_CARD=default
 ## after extractions have been made from them. This includes both WAVE and
 ## BirdNET.selection.txt files.
 
-PROCESSED=$HOME/BirdSongs/Processed
+PROCESSED=/dev/shm/BirdSongs/Processed
 
 ## EXTRACTED is the directory where the extracted audio selections are moved.
 
@@ -131,6 +131,13 @@ CHANNELS=2
 ## keep = Keep all data and 'stop_core_services.sh'
 
 FULL_DISK=purge
+
+## STORAGE_LIMIT is the amount of raw data that should be kept.
+## Unit options: B(bytes) M(megabytes) G(gigabytes)
+## Minimum value: 40B
+## Example: STORAGE_LIMIT = 1G
+
+STORAGE_LIMIT = 50M
 
 ## PRIVACY_THRESHOLD can be set to enable sensitivity to Human sounds. This
 ## setting is an effort to introduce privacy into the data collection.

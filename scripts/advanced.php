@@ -1,4 +1,11 @@
 <?php
+function endsWith( $haystack, $needle ) {
+    $length = strlen( $needle );
+    if( !$length ) {
+        return true;
+    }
+    return substr( $haystack, -$length ) === $needle;
+}
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -109,6 +116,14 @@ if(isset($_GET['submit'])) {
     }
   }
 
+  if(isset($_GET["storage_limit_value"])||isset($_GET["storage_limit_unit"])) {
+    $storage_limit = $_GET["storage_limit_value"].$_GET["storage_limit_unit"];
+    if(strcmp($full_disk,$config['STORAGE_LIMIT']) !== 0) {
+      $contents = preg_replace("/STORAGE_LIMIT=.*/", "STORAGE_LIMIT=$storage_limit", $contents);
+      $contents2 = preg_replace("/STORAGE_LIMIT=.*/", "STORAGE_LIMIT=$storage_limit", $contents2);
+    }
+  }
+
   if(isset($_GET["privacy_threshold"])) {
     $privacy_threshold = $_GET["privacy_threshold"];
     if(strcmp($privacy_threshold,$config['PRIVACY_THRESHOLD']) !== 0) {
@@ -205,6 +220,9 @@ if (file_exists('./scripts/thisrun.txt')) {
       <label for="keep">
       <input name="full_disk" type="radio" id="keep" value="keep" <?php if (strcmp($newconfig['FULL_DISK'], "keep") == 0) { echo "checked"; }?>>Keep</label>
       <p>When the disk becomes full, you can choose to 'purge' old files to make room for new ones or 'keep' your data and stop all services instead.<br>Note: you can exclude specific files from 'purge' on the Recordings page.</p>
+      <label for="storage_limit_value">Storage Limit: </label>
+      <input name="storage_limit_value" type="number" value="<?php $stor_lim = floatval($newconfig['STORAGE_LIMIT']);echo $stor_lim;?>" required/><select name="storage_limit_unit"><option value="B" <?php $storage_limit = $newconfig['STORAGE_LIMIT']; if(endsWith("$storage_limit", 'B')){ echo "selected";}?>>Bytes</option><option value="M" <?php if(endsWith("$storage_limit", 'M')){ echo "selected";}?>>MegaBytes</option><option value="G" <?php if(endsWith("$storage_limit", 'G')){ echo "selected";}?>>GigaBytes</option></select><br>
+      <p>Storage Limit is the amount of raw data you would like the system to keep.</p>
       <label for="rec_card">Audio Card: </label>
       <input name="rec_card" type="text" value="<?php print($newconfig['REC_CARD']);?>" required/><br>
       <p>Set Audio Card to 'default' to use PulseAudio (always recommended), or an ALSA recognized sound card device from the output of `aplay -L`.</p>

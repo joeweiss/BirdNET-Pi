@@ -137,7 +137,7 @@ FULL_DISK=purge
 ## Minimum value: 40B
 ## Example: STORAGE_LIMIT = 1G
 
-STORAGE_LIMIT = 50M
+STORAGE_LIMIT=50M
 
 ## PRIVACY_THRESHOLD can be set to enable sensitivity to Human sounds. This
 ## setting is an effort to introduce privacy into the data collection.

@@ -405,19 +405,19 @@ def handle_client(conn, addr):
                                 # Apprise of detection if not already alerted this run.
                                 if not entry[0] in species_apprised_this_run:
                                     settings_dict = config_to_settings(userDir + '/BirdNET-Pi/scripts/thisrun.txt')
-                                    sendAppriseNotifications(species,
-                                                             str(score),
-                                                             File_Name,
-                                                             Date,
-                                                             Time,
-                                                             Week,
-                                                             Lat,
-                                                             Lon,
-                                                             Cutoff,
-                                                             Sens,
-                                                             Overlap,
-                                                             settings_dict,
-                                                             DB_PATH)
+                                    sendAppriseNotifications(species=species,
+                                                             confidence=str(score),
+                                                             path=File_Name,
+                                                             date=Date,
+                                                             time=Time,
+                                                             week=Week,
+                                                             latitude=Lat,
+                                                             longitude=Lon,
+                                                             cutoff=Cutoff,
+                                                             sens=Sens,
+                                                             overlap=Overlap,
+                                                             settings_dict=settings_dict,
+                                                             db_path=DB_PATH)
                                     species_apprised_this_run.append(entry[0])
 
                                 print(str(current_date) +

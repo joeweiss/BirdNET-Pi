@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 def create_test_db(db_file):
-    """ create a database connection to a SQLite database """
+    """create a database connection to a SQLite database"""
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -18,8 +18,8 @@ def create_test_db(db_file):
                                     ); """
         cur = conn.cursor()
         cur.execute(sql_create_detections_table)
-        sql = ''' INSERT INTO detections(Com_Name, Date)
-              VALUES(?,?) '''
+        sql = """ INSERT INTO detections(Com_Name, Date)
+              VALUES(?,?) """
 
         cur = conn.cursor()
         today = datetime.now().strftime("%Y-%m-%d")  # SQLite stores date as YYYY-MM-DD
@@ -40,44 +40,97 @@ def clean_up_after_each_test():
 
 
 def test_notifications(mocker):
-    notify_call = mocker.patch('scripts.utils.notifications.notify')
+    notify_call = mocker.patch("scripts.utils.notifications.notify")
     create_test_db("test.db")
     settings_dict = {
         "APPRISE_NOTIFICATION_TITLE": "New backyard bird!",
         "APPRISE_NOTIFICATION_BODY": "A $comname ($sciname) was just detected with a confidence of $confidence",
         "APPRISE_NOTIFY_EACH_DETECTION": "0",
         "APPRISE_NOTIFY_NEW_SPECIES": "0",
-        "APPRISE_NOTIFY_NEW_SPECIES_EACH_DAY": "0"
+        "APPRISE_NOTIFY_NEW_SPECIES_EACH_DAY": "0",
     }
 
     # No active apprise notifcations configured. Confirm no notifications.
-    sendAppriseNotifications("Myiarchus crinitus_Great Crested Flycatcher", "91", "filename", settings_dict, "test.db")
-    assert(notify_call.call_count == 0)  # No notification should be sent.
+    sendAppriseNotifications(
+        species="Myiarchus crinitus_Great Crested Flycatcher",
+        confidence="91",
+        path="filename",
+        settings_dict=settings_dict,
+        db_path="test.db",
+    )
+    assert notify_call.call_count == 0  # No notification should be sent.
 
     # Add daily notification.
     notify_call.reset_mock()
     settings_dict["APPRISE_NOTIFY_NEW_SPECIES_EACH_DAY"] = "1"
-    sendAppriseNotifications("Myiarchus crinitus_Great Crested Flycatcher", "91", "filename", settings_dict, "test.db")
-    assert(notify_call.call_count == 1)
-    assert(
-        notify_call.call_args_list[0][0][0] == "A Great Crested Flycatcher (Myiarchus crinitus) was just detected with a confidence of 91 (first time today)"
+    sendAppriseNotifications(
+        species="Myiarchus crinitus_Great Crested Flycatcher",
+        confidence="91",
+        path="filename",
+        settings_dict=settings_dict,
+        db_path="test.db",
+    )
+    assert notify_call.call_count == 1
+    assert (
+        notify_call.call_args_list[0][0][0]
+        == "A Great Crested Flycatcher (Myiarchus crinitus) was just detected with a confidence of 91 (first time today)"
     )
 
     # Add new species notification.
     notify_call.reset_mock()
     settings_dict["APPRISE_NOTIFY_NEW_SPECIES"] = "1"
-    sendAppriseNotifications("Myiarchus crinitus_Great Crested Flycatcher", "91", "filename", settings_dict, "test.db")
-    assert(notify_call.call_count == 2)
-    assert(
-        notify_call.call_args_list[0][0][0] == "A Great Crested Flycatcher (Myiarchus crinitus) was just detected with a confidence of 91 (first time today)"
+    sendAppriseNotifications(
+        species="Myiarchus crinitus_Great Crested Flycatcher",
+        confidence="91",
+        path="filename",
+        settings_dict=settings_dict,
+        db_path="test.db",
     )
-    assert(
-        notify_call.call_args_list[1][0][0] == "A Great Crested Flycatcher (Myiarchus crinitus) \
-                was just detected with a confidence of 91 (only seen 1 times in last 7d)"
+    assert notify_call.call_count == 2
+    assert (
+        notify_call.call_args_list[0][0][0]
+        == "A Great Crested Flycatcher (Myiarchus crinitus) was just detected with a confidence of 91 (first time today)"
+    )
+    assert (
+        notify_call.call_args_list[1][0][0]
+        == "A Great Crested Flycatcher (Myiarchus crinitus) was just detected with a confidence of 91 (only seen 1 times in last 7d)"
     )
 
     # Add each species notification.
     notify_call.reset_mock()
     settings_dict["APPRISE_NOTIFY_EACH_DETECTION"] = "1"
-    sendAppriseNotifications("Myiarchus crinitus_Great Crested Flycatcher", "91", "filename", settings_dict, "test.db")
-    assert(notify_call.call_count == 3)
+    sendAppriseNotifications(
+        species="Myiarchus crinitus_Great Crested Flycatcher",
+        confidence="91",
+        path="filename",
+        settings_dict=settings_dict,
+        db_path="test.db",
+    )
+    assert notify_call.call_count == 3
+
+
+def test_json_notifications(mocker):
+    notify_call = mocker.patch("scripts.utils.notifications.notify")
+    create_test_db("test.db")
+    settings_dict = {
+        "APPRISE_NOTIFICATION_TITLE": "New backyard bird!",
+        "APPRISE_NOTIFICATION_BODY": '{"commonName": "$comname", "date": "$date"}',
+        "APPRISE_NOTIFY_EACH_DETECTION": "1",
+        "APPRISE_NOTIFY_NEW_SPECIES": "0",
+        "APPRISE_NOTIFY_NEW_SPECIES_EACH_DAY": "0",
+    }
+
+    # Add each species notification.
+    sendAppriseNotifications(
+        species="Myiarchus crinitus_Great Crested Flycatcher",
+        date="validdate",
+        confidence="91",
+        path="filename",
+        settings_dict=settings_dict,
+        db_path="test.db",
+    )
+    assert notify_call.call_count == 1
+    assert (
+        notify_call.call_args_list[0][0][0]
+        == '{"commonName": "Great Crested Flycatcher", "date": "validdate"}'
+    )
